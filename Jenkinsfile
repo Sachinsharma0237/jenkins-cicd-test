@@ -2,14 +2,14 @@ pipeline {
     agent any
 
     environment {
-        DOCKERHUB_CREDENTIALS = credentials('dockerhub-cred-id') // Jenkins credentials ID
+        DOCKERHUB_CREDENTIALS = credentials('2ca01db9-6667-4c8d-bb34-096c5b340318') // Jenkins credentials ID
         DOCKER_IMAGE = "sachinsharma0237/jenkins-cicd-test" // change to your repo
     }
 
     stages {
         stage('Checkout Code') {
             steps {
-                git branch: 'main', url: 'https://github.com/<your-username>/<your-repo>.git'
+                git branch: 'main', url: 'https://github.com/Sachinsharma0237/jenkins-cicd-test.git'   //instead of main write the branch name
             }
         }
 
