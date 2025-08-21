@@ -2,32 +2,33 @@ pipeline {
     agent any
 
     environment {
-        DOCKERHUB_CREDENTIALS = credentials('2ca01db9-6667-4c8d-bb34-096c5b340318') // Jenkins credentials ID
-        DOCKER_IMAGE = "sachinsharma0237/jenkins-cicd-test" // change to your repo
+        DOCKERHUB_CREDENTIALS = credentials('dockerhub-cred-id') // Your Jenkins credential ID
+        DOCKERHUB_REPO = "sachinsharma0237/testapp" // Replace with your DockerHub repo
+        APP_NAME = "testapp"
     }
 
     stages {
-        stage('Checkout Code') {
+        stage('Checkout') {
             steps {
-                git branch: 'main', url: 'https://github.com/Sachinsharma0237/jenkins-cicd-test.git'   //instead of main write the branch name
+                git branch: 'main', url: 'https://github.com/your-username/your-repo.git'
             }
         }
 
         stage('Build Docker Image') {
             steps {
                 script {
-                    sh "docker build -t ${DOCKER_IMAGE}:${BUILD_NUMBER} ."
+                    bat "docker build -t %DOCKERHUB_REPO%:latest ."
                 }
             }
         }
 
-        stage('Push to DockerHub') {
+        stage('Push Docker Image') {
             steps {
                 script {
-                    sh "echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin"
-                    sh "docker push ${DOCKER_IMAGE}:${BUILD_NUMBER}"
-                    sh "docker tag ${DOCKER_IMAGE}:${BUILD_NUMBER} ${DOCKER_IMAGE}:latest"
-                    sh "docker push ${DOCKER_IMAGE}:latest"
+                    withCredentials([usernamePassword(credentialsId: 'dockerhub-cred-id', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                        bat "docker login -u %DOCKER_USER% -p %DOCKER_PASS%"
+                        bat "docker push %DOCKERHUB_REPO%:latest"
+                    }
                 }
             }
         }
@@ -35,10 +36,20 @@ pipeline {
         stage('Deploy Container') {
             steps {
                 script {
-                    sh "docker stop jenkins-cicd-test || true && docker rm jenkins-cicd-test || true"
-                    sh "docker run -d --name jenkins-cicd-test -p 3000:3000 ${DOCKER_IMAGE}:latest"
+                    // Stop old container if running
+                    bat "docker stop %APP_NAME% || echo No container to stop"
+                    bat "docker rm %APP_NAME% || echo No container to remove"
+
+                    // Run new container
+                    bat "docker run -d --name %APP_NAME% -p 8080:8080 %DOCKERHUB_REPO%:latest"
                 }
             }
+        }
+    }
+
+    post {
+        always {
+            echo 'Pipeline finished!'
         }
     }
 }
