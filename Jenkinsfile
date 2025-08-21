@@ -23,7 +23,7 @@ pipeline {
                 script {
                     // ⚠️ For testing only — plain password (NOT safe for production)
                     bat '''
-                        docker login -u sachinsharma0237 -p %c&nz8J*NzvMs-V
+                        docker login -u sachinsharma0237 -p Sachin12345
                         docker push sachinsharma0237/jenkins-cicd-test:%BUILD_NUMBER%
                         docker tag sachinsharma0237/jenkins-cicd-test:%BUILD_NUMBER% sachinsharma0237/jenkins-cicd-test:latest
                         docker push sachinsharma0237/jenkins-cicd-test:latest
