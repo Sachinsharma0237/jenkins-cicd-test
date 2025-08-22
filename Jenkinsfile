@@ -43,5 +43,18 @@ pipeline {
                 }
             }
         }
+
+        stage('Deploy Locally') {
+            steps {
+                script {
+                    bat """
+                    docker stop my-sample-app || exit 0
+                    docker rm my-sample-app || exit 0
+                    docker pull %DOCKER_IMAGE%
+                    docker run -d -p 8080:80 --name my-sample-app %DOCKER_IMAGE%
+                    """
+                }
+            }
+        }
     }
 }
